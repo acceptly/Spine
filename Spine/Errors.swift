@@ -48,6 +48,9 @@ public enum SpineError: Error, Equatable {
 	/// The requested resource is not found.
 	case resourceNotFound
 	
+    /// Feature is not implemented yet.
+    case notImplemented
+
 	/// An error occured during (de)serializing.
 	case serializerError(SerializerError)
 	
@@ -97,6 +100,8 @@ public func ==(lhs: SpineError, rhs: SpineError) -> Bool {
 		return true
 	case (.resourceNotFound, .resourceNotFound):
 		return true
+    case(.notImplemented, .notImplemented):
+        return true
 	case (let .serializerError(lhsError), let .serializerError(rhsError)):
 		return lhsError == rhsError
 	case (let .serverError(lhsStatusCode, lhsApiErrors), let .serverError(rhsStatusCode, rhsApiErrors)):

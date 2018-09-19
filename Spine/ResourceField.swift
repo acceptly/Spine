@@ -88,17 +88,33 @@ public class DateAttribute: Attribute {
 public class BooleanAttribute: Attribute {}
 
 /// A basic relationship field.
+public class Relationship: Field { }
+
+/// A non-polymorphic relationship field.
 /// Do not use this field type directly, instead use either `ToOneRelationship` or `ToManyRelationship`.
-public class Relationship: Field {
-	let linkedType: Resource.Type
-	
-	public init(_ type: Resource.Type) {
-		linkedType = type
-	}
+
+public class NonPolymorphicRelationship: Relationship {
+    let linkedType: Resource.Type
+
+    public init(_ type: Resource.Type) {
+        linkedType = type
+    }
 }
 
 /// A to-one relationship field.
-public class ToOneRelationship: Relationship { }
+public class ToOneRelationship: NonPolymorphicRelationship { }
 
 /// A to-many relationship field.
-public class ToManyRelationship: Relationship { }
+public class ToManyRelationship: NonPolymorphicRelationship { }
+
+/// A polymorphic relationship field.
+/// Do not use this field type directly, instead use either `ToOnePolymorphicRelationship`.
+public class PolymorphicRelationship: Relationship {
+    public override init() { }
+}
+
+/// A to-one polymorphic relatioship field.
+public class ToOnePolymorphicRelationship: PolymorphicRelationship { }
+
+/// A to-many polymorphic relationship field.
+public class ToManyPolymorphicRelationship: PolymorphicRelationship { }

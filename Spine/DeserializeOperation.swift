@@ -179,7 +179,7 @@ class DeserializeOperation: Operation {
 		resource.url = representation["links"]["self"].url
 		resource.meta = representation["meta"].dictionaryObject
 		extractAttributes(from: representation, intoResource: resource)
-		extractRelationships(from: representation, intoResource: resource)
+        try? extractRelationships(from: representation, intoResource: resource)
 		
 		resource.isLoaded = true
 		
@@ -226,7 +226,7 @@ class DeserializeOperation: Operation {
 	///
 	/// - parameter serializedData: The data from which to extract the relationships.
 	/// - parameter resource:       The resource into which to extract the relationships.
-	fileprivate func extractRelationships(from serializedData: JSON, intoResource resource: Resource) {
+	fileprivate func extractRelationships(from serializedData: JSON, intoResource resource: Resource) throws {
 		for field in resource.fields {
 			let key = keyFormatter.format(field)
 			resource.relationships[field.name] = extractRelationshipData(serializedData["relationships"][key])
@@ -244,6 +244,14 @@ class DeserializeOperation: Operation {
 						resource.setValue(linkedResourceCollection, forField: toMany.name)
 					}
 				}
+            case let toOnePolymorphic as ToOnePolymorphicRelationship:
+                if let linkedResource = extractToOneRelationship(key, from: serializedData, linkedType: serializedData["relationships"][field.serializedName]["data"]["type"].string!) {
+                    if resource.value(forField: toOnePolymorphic.name) == nil || (resource.value(forField: toOnePolymorphic.name) as? Resource)?.isLoaded == false {
+                        resource.setValue(linkedResource, forField: toOnePolymorphic.name)
+                    }
+                }
+            case is ToManyPolymorphicRelationship:
+                throw SpineError.notImplemented
 			default: ()
 			}
 		}

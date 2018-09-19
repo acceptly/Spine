@@ -119,7 +119,7 @@ open class JSONAPIRouter: Router {
 				
 				var relatedResourceType: Resource.Type = T.self
 				for part in include.components(separatedBy: ".") {
-					if let relationship = relatedResourceType.field(named: part) as? Relationship {
+					if let relationship = relatedResourceType.field(named: part) as? NonPolymorphicRelationship {
 						keys.append(keyFormatter.format(relationship))
 						relatedResourceType = relationship.linkedType
 					}

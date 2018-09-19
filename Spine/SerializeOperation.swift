@@ -64,7 +64,7 @@ class SerializeOperation: Operation {
 		
 		// Serialize fields
 		addAttributes(from: resource, to: &serializedData )
-		addRelationships(from: resource, to: &serializedData)
+		try? addRelationships(from: resource, to: &serializedData)
 		
 		return serializedData
 	}
@@ -101,7 +101,7 @@ class SerializeOperation: Operation {
 	///
 	/// - parameter resource:       The resource whose relationships to add.
 	/// - parameter serializedData: The data to add the relationships to.
-	fileprivate func addRelationships(from resource: Resource, to serializedData: inout [String: Any]) {
+	fileprivate func addRelationships(from resource: Resource, to serializedData: inout [String: Any]) throws {
 		for case let field as Relationship in resource.fields where field.isReadOnly == false {
 			let key = keyFormatter.format(field)
 			
@@ -116,7 +116,11 @@ class SerializeOperation: Operation {
 				if options.contains(.IncludeToMany) {
 					addToManyRelationship(resource.value(forField: field.name) as? ResourceCollection, to: &serializedData, key: key, type: toMany.linkedType.resourceType)
 				}
-			default: ()
+            case is ToOnePolymorphicRelationship:
+                throw SpineError.notImplemented
+            case is ToManyPolymorphicRelationship:
+                throw SpineError.notImplemented
+            default: ()
 			}
 		}
 	}
