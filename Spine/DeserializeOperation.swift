@@ -245,7 +245,8 @@ class DeserializeOperation: Operation {
 					}
 				}
             case let toOnePolymorphic as ToOnePolymorphicRelationship:
-                if let linkedResource = extractToOneRelationship(key, from: serializedData, linkedType: serializedData["relationships"][field.serializedName]["data"]["type"].string!) {
+                guard let linkedType = serializedData["relationships"][field.serializedName]["data"]["type"].string else { continue }
+                if let linkedResource = extractToOneRelationship(key, from: serializedData, linkedType: linkedType) {
                     if resource.value(forField: toOnePolymorphic.name) == nil || (resource.value(forField: toOnePolymorphic.name) as? Resource)?.isLoaded == false {
                         resource.setValue(linkedResource, forField: toOnePolymorphic.name)
                     }
