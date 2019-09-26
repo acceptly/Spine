@@ -133,6 +133,32 @@ open class Spine {
 		return promise.future
 	}
 
+	/// Fetch multiple resources using the given query.
+	///
+	/// - parameter query: The query describing which resources to fetch.
+	///
+	/// - returns: A future that resolves to a tuple containing the fetched ResourceCollection, the document meta,, the document links and the document jsonapi object.
+	open func find<T>(_ query: Query<T>) -> Future<(resources: ResourceCollection, meta: Metadata?, links: [String: URL]?, jsonapi: JSONAPIData?), SpineError> {
+		let promise = Promise<(resources: ResourceCollection, meta: Metadata?, links: [String: URL]?, jsonapi: JSONAPIData?), SpineError>()
+
+		let operation = FetchOperation(query: query, spine: self)
+
+		operation.completionBlock = { [unowned operation] in
+
+			switch operation.result! {
+			case .success(let document):
+				let response = (ResourceCollection(document: document), document.meta, document.links, document.jsonapi)
+				promise.success(response)
+			case .failure(let error):
+				promise.failure(error)
+			}
+		}
+
+		addOperation(operation)
+
+		return promise.future
+	}
+
 	/// Fetch multiple resources with the given IDs and type.
 	///
 	/// - parameter ids:  Array containing IDs of resources to fetch.
