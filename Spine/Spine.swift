@@ -138,8 +138,8 @@ open class Spine {
 	/// - parameter query: The query describing which resources to fetch.
 	///
 	/// - returns: A future that resolves to a tuple containing the fetched ResourceCollection, the document meta,, the document links and the document jsonapi object.
-	open func find<T>(_ query: Query<T>) -> Future<(resources: ResourceCollection, meta: Metadata?, links: [String: URL]?, jsonapi: JSONAPIData?), SpineError> {
-		let promise = Promise<(resources: ResourceCollection, meta: Metadata?, links: [String: URL]?, jsonapi: JSONAPIData?), SpineError>()
+    open func find<T>(_ query: Query<T>) -> Future<(resources: ResourceCollection, meta: Metadata?, links: [String: URL]?, jsonapi: JSONAPIData?, document: JSONAPIDocument), SpineError> {
+        let promise = Promise<(resources: ResourceCollection, meta: Metadata?, links: [String: URL]?, jsonapi: JSONAPIData?, document: JSONAPIDocument), SpineError>()
 
 		let operation = FetchOperation(query: query, spine: self)
 
@@ -147,7 +147,7 @@ open class Spine {
 
 			switch operation.result! {
 			case .success(let document):
-				let response = (ResourceCollection(document: document), document.meta, document.links, document.jsonapi)
+				let response = (ResourceCollection(document: document), document.meta, document.links, document.jsonapi, document)
 				promise.success(response)
 			case .failure(let error):
 				promise.failure(error)
